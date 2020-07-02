@@ -216,4 +216,58 @@ public class FlowProcessServiceImpl implements FlowProcessService {
         nodeSchedule.addData(nodeRecord);
     }
 
+
+    /**
+     * Setter method for property   processParamMapper .
+     *
+     * @param processParamMapper value to be assigned to property processParamMapper
+     */
+    public void setProcessParamMapper(ProcessParamMapper processParamMapper) {
+        this.processParamMapper = processParamMapper;
+    }
+
+    /**
+     * Setter method for property   processRecordMapper .
+     *
+     * @param processRecordMapper value to be assigned to property processRecordMapper
+     */
+    public void setProcessRecordMapper(ProcessRecordMapper processRecordMapper) {
+        this.processRecordMapper = processRecordMapper;
+    }
+
+    /**
+     * Setter method for property   flowProcessMapper .
+     *
+     * @param flowProcessMapper value to be assigned to property flowProcessMapper
+     */
+    public void setFlowProcessMapper(FlowProcessMapper flowProcessMapper) {
+        this.flowProcessMapper = flowProcessMapper;
+    }
+
+    /**
+     * Setter method for property   processNodeMapper .
+     *
+     * @param processNodeMapper value to be assigned to property processNodeMapper
+     */
+    public void setProcessNodeMapper(ProcessNodeMapper processNodeMapper) {
+        this.processNodeMapper = processNodeMapper;
+    }
+
+    /**
+     * Setter method for property   nodeRecordMapper .
+     *
+     * @param nodeRecordMapper value to be assigned to property nodeRecordMapper
+     */
+    public void setNodeRecordMapper(ProcessNodeRecordMapper nodeRecordMapper) {
+        this.nodeRecordMapper = nodeRecordMapper;
+    }
+
+    /**
+     * Setter method for property   nodeSchedule .
+     *
+     * @param nodeSchedule value to be assigned to property nodeSchedule
+     */
+    public void setNodeSchedule(NodeSchedule nodeSchedule) {
+        this.nodeSchedule = nodeSchedule;
+    }
 }
