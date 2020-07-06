@@ -4,6 +4,10 @@
 package com.qlj.flow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
  * 节点，(定义流程的节点)
@@ -11,41 +15,57 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @version :  com.wj.updater.entity.ProcessNode.java,  v  0.1  2020/6/29  10:14  49796  Exp  $$
  */
 @TableName("process_node")
-public class ProcessNode {
+@Table("process_node")
+public class ProcessNode extends BaseEntity{
 
     /**
      * 节点Id
      */
+    @IsKey
+    @Column(length = 32,comment = "主键")
     private String id;
 
     /**
      * 流程ID
      */
+    @Column(length = 32,comment = "流程ID")
     private String processId;
 
     /**
      * 节点类型
      */
+    @Column(length = 16,comment = "节点类型")
     private String type;
 
     /**
      * 节点名称
      */
+    @Column(length = 64,comment = "name")
     private String name;
 
     /**
-     * 节点配置一个JSON
+     * 节点配置,一个JSON
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "节点配置,一个JSON")
     private String config;
 
     /**
      * 上一个节点id
      */
+    @Column(length = 32,comment = "上一个节点id")
     private String lastNode;
+
+
+    /**
+     * 下一个节点的ID
+     */
+    @Column(length = 32,comment = "下一个节点的ID")
+    private String nexNode;
 
     /**
      * 错误重试次数上限
      */
+    @Column(comment = "错误重试次数上限")
     private Integer retryTime;
 
     /**
@@ -172,5 +192,23 @@ public class ProcessNode {
      */
     public void setRetryTime(Integer retryTime) {
         this.retryTime = retryTime;
+    }
+
+    /**
+     * Getter  method  for  property      nexNode.
+     *
+     * @return property  value  of  nexNode
+     */
+    public String getNexNode() {
+        return nexNode;
+    }
+
+    /**
+     * Setter method for property   nexNode .
+     *
+     * @param nexNode value to be assigned to property nexNode
+     */
+    public void setNexNode(String nexNode) {
+        this.nexNode = nexNode;
     }
 }

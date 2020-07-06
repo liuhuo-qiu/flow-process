@@ -4,6 +4,9 @@
 package com.qlj.flow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
  * 流程实例
@@ -11,36 +14,43 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @version :  com.wj.updater.entity.ProcessRecord.java,  v  0.1  2020/6/29  11:10  49796  Exp  $$
  */
 @TableName("process_record")
-public class ProcessRecord {
+public class ProcessRecord extends BaseEntity{
 
     /**
      * 流程实例id
      */
+    @IsKey
+    @Column(length = 32,comment = "主键")
     private String id;
     /**
      * 流程ID
      */
+    @Column(length = 32,comment = "流程ID")
     private String processId;
 
     /**
      * 启动流程实例时传入的参数
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "启动流程实例时传入的参数")
     private String param;
 
     /**
-     * 流程状态
+     * 流程状态  ProcessStatusEnum
      */
+    @Column(length = 16,comment = "流程状态")
     private String status;
 
 
     /**
-     * 实例最终输出
+     * 流程最终输出结果
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "流程最终输出结果")
     private String result;
 
     /**
-     * 流程异常信息
+     * 流程异常信息 一般只有在创建时的异常才会保存到这里
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "流程异常信息")
     private String errorMessage;
 
     /**

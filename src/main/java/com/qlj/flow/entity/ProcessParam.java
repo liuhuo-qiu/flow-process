@@ -4,6 +4,8 @@
 package com.qlj.flow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
 
 /**
  * 节点参数
@@ -11,47 +13,56 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @version :  com.wj.updater.entity.ProcessParam.java,  v  0.1  2020/6/29  10:17  49796  Exp  $$
  */
 @TableName("process_param")
-public class ProcessParam {
+public class ProcessParam extends BaseEntity{
 
     /**
      * id
      */
+    @IsKey
+    @Column(length = 32,comment = "主键")
     private String id;
 
     /**
      * 流程ID
      */
+    @Column(length = 32,comment = "流程ID")
     private String processId;
 
 
     /**
      * 节点Id
      */
+    @Column(length = 32,comment = "节点Id")
     private String nodeId;
 
     /**
      * 参数类型  node  process
      */
+    @Column(length = 16,comment = "参数类型")
     private String type;
 
     /**
      * 参数名称
      */
+    @Column(length = 64,comment = "参数名称")
     private String fieldName;
 
     /**
      * 参数类型  string  int  date
      */
+    @Column(length = 64,comment = "参数类型")
     private String fieldType;
 
     /**
      * 是否必须
      */
+    @Column(comment ="是否必须")
     private Boolean required;
 
     /**
-     * 参数值
+     * 参数默认值
      */
+    @Column(length = 64,comment = "参数默认值")
     private String value;
 
     /**

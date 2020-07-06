@@ -4,6 +4,9 @@
 package com.qlj.flow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
 
 import java.util.Date;
 
@@ -13,27 +16,23 @@ import java.util.Date;
  * @version :  com.wj.updater.entity.FlowProcess.java,  v  0.1  2020/6/29  10:14  49796  Exp  $$
  */
 @TableName("flow_process")
-public class FlowProcess {
+@Table("flow_process")
+public class FlowProcess extends BaseEntity{
 
     /**
      * 流程Id
      */
+    @IsKey
+    @Column(length = 32,comment = "主键")
     private String id;
 
     /**
      * 流程名称
      */
+    @Column(length = 64,comment = "流程名称")
     private String name;
 
-    /**
-     * 创建时间
-     */
-    private Date createTime;
 
-    /**
-     * 最后更新时间
-     */
-    private Date modifyTime;
 
 
     /**
@@ -54,23 +53,6 @@ public class FlowProcess {
         this.id = id;
     }
 
-    /**
-     * Getter  method  for  property      name.
-     *
-     * @return property  value  of  name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Setter method for property   name .
-     *
-     * @param name value to be assigned to property name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
 
 
 }

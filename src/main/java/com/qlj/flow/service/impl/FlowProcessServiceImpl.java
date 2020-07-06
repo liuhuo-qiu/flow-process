@@ -210,6 +210,7 @@ public class FlowProcessServiceImpl implements FlowProcessService {
         nodeRecord.setNodeId(node.getId());
         nodeRecord.setParams(nodeParam.toJSONString());
         nodeRecord.setStatus(ProcessStatusEnum.START.getCode());
+
         //节点实例入库
         nodeRecordMapper.insert(nodeRecord);
         //加入待执行队列

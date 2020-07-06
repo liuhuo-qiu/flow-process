@@ -4,6 +4,9 @@
 package com.qlj.flow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
  * 节点实例
@@ -11,48 +14,58 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @version :  com.wj.updater.entity.ProcessNodeRecord.java,  v  0.1  2020/6/29  11:12  49796  Exp  $$
  */
 @TableName("process_node_record")
-public class ProcessNodeRecord {
+public class ProcessNodeRecord extends BaseEntity{
 
     /**
      * 流程实例ID
      */
+    @IsKey
+    @Column(length = 32,comment = "主键")
     private String id;
 
 
     /**
-     * 流程实例
+     * 流程实例ID
      */
+    @Column(length = 32,comment = "流程实例ID")
     private String processRecordId;
 
     /**
      * 节点ID
      */
+    @Column(length = 32,comment = "节点ID")
     private String nodeId;
 
     /**
      * 是否重试实例
      */
+    @Column(comment = "是否重试实例")
     private Boolean retry;
 
     /**
      * 节点入参
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "节点入参")
     private String params;
 
     /**
      * 节点出参
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "节点出参")
     private String result;
 
     /**
      * 当前节点执行状态  running   success error  failed
      */
+    @Column(length = 16,comment = "状态")
     private String status;
 
     /**
-     * 错误信息
+     * 执行错误信息
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "执行错误信息")
     private String errorMessage;
+
 
     /**
      * Getter  method  for  property      id.

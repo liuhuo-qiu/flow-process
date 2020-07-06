@@ -143,4 +143,58 @@ public class FlowProcessSchedule{
 
     }
 
+
+    /**
+     * Setter method for property   processRecordMapper .
+     *
+     * @param processRecordMapper value to be assigned to property processRecordMapper
+     */
+    public void setProcessRecordMapper(ProcessRecordMapper processRecordMapper) {
+        this.processRecordMapper = processRecordMapper;
+    }
+
+    /**
+     * Setter method for property   nodeRecordMapper .
+     *
+     * @param nodeRecordMapper value to be assigned to property nodeRecordMapper
+     */
+    public void setNodeRecordMapper(ProcessNodeRecordMapper nodeRecordMapper) {
+        this.nodeRecordMapper = nodeRecordMapper;
+    }
+
+    /**
+     * Setter method for property   nodeMapper .
+     *
+     * @param nodeMapper value to be assigned to property nodeMapper
+     */
+    public void setNodeMapper(ProcessNodeMapper nodeMapper) {
+        this.nodeMapper = nodeMapper;
+    }
+
+    /**
+     * Setter method for property   paramMapper .
+     *
+     * @param paramMapper value to be assigned to property paramMapper
+     */
+    public void setParamMapper(ProcessParamMapper paramMapper) {
+        this.paramMapper = paramMapper;
+    }
+
+    /**
+     * Setter method for property   contextMapper .
+     *
+     * @param contextMapper value to be assigned to property contextMapper
+     */
+    public void setContextMapper(ProcessContextMapper contextMapper) {
+        this.contextMapper = contextMapper;
+    }
+
+    /**
+     * Setter method for property   flowProcessService .
+     *
+     * @param flowProcessService value to be assigned to property flowProcessService
+     */
+    public void setFlowProcessService(FlowProcessService flowProcessService) {
+        this.flowProcessService = flowProcessService;
+    }
 }

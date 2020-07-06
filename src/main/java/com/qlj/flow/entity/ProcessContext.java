@@ -4,6 +4,10 @@
 package com.qlj.flow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
  * 流程上下文
@@ -11,28 +15,35 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @version :  com.wj.updater.entity.ProcessContext.java,  v  0.1  2020/6/29  14:09  49796  Exp  $$
  */
 @TableName("process_context")
-public class ProcessContext {
+@Table("process_context")
+public class ProcessContext extends BaseEntity{
     /**
      * id
      */
+    @IsKey
+    @Column(length = 32,comment = "主键")
     private String id;
     /**
      * 流程ID
      */
+    @Column(length = 32,comment = "流程ID")
     private String processRecordId;
     /**
      * 上下文key
      */
+    @Column(length = 64,comment = "上下文key")
     private String field;
 
     /**
-     * 类型
+     * 上下文类型
      */
+    @Column(length = 64,comment = "上下文类型 Integer String Date")
     private String fieldType;
 
     /**
      * 值
      */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "值")
     private String value;
 
     /**
