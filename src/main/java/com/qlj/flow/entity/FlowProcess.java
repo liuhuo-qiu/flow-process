@@ -7,8 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
 import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
 import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
-
-import java.util.Date;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
  * 流程（定义的流程对象）
@@ -18,21 +17,33 @@ import java.util.Date;
 @TableName("flow_process")
 @Table("flow_process")
 public class FlowProcess extends BaseEntity{
+    /**
+     *启用状态
+     */
+    public static final String STATUS_ENABLE="1";
+    /**
+     * 禁用状态
+     */
+    public static final String STATUS_DISABLED="2";
 
     /**
      * 流程Id
      */
     @IsKey
-    @Column(length = 32,comment = "主键")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "主键")
     private String id;
 
     /**
      * 流程名称
      */
-    @Column(length = 64,comment = "流程名称")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "流程名称" ,isNull = false)
     private String name;
 
-
+    /**
+     * 流程状态  1启用 2禁用
+     */
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 4,comment = "流程状态  1启用 2禁用" ,isNull = false)
+    private String status;
 
 
     /**
@@ -53,6 +64,39 @@ public class FlowProcess extends BaseEntity{
         this.id = id;
     }
 
+    /**
+     * Getter  method  for  property      name.
+     *
+     * @return property  value  of  name
+     */
+    public String getName() {
+        return name;
+    }
 
+    /**
+     * Setter method for property   name .
+     *
+     * @param name value to be assigned to property name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    /**
+     * Getter  method  for  property      status.
+     *
+     * @return property  value  of  status
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * Setter method for property   status .
+     *
+     * @param status value to be assigned to property status
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

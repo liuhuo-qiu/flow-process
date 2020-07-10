@@ -257,6 +257,17 @@ public class TextUtil {
      * @return
      * @throws IOException
      */
+    public static String read(String filePath) throws IOException {
+        return StringUtils.join(readLine(filePath),"");
+    }
+
+
+    /**
+     *
+     * @param filePath
+     * @return
+     * @throws IOException
+     */
     public static List<String> readLine(String filePath) throws IOException {
         return readLine(filePath,"utf-8");
     }

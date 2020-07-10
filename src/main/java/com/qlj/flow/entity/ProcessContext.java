@@ -21,23 +21,23 @@ public class ProcessContext extends BaseEntity{
      * id
      */
     @IsKey
-    @Column(length = 32,comment = "主键")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "主键")
     private String id;
     /**
      * 流程ID
      */
-    @Column(length = 32,comment = "流程ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "流程ID" ,isNull = false)
     private String processRecordId;
     /**
      * 上下文key
      */
-    @Column(length = 64,comment = "上下文key")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "上下文key" ,isNull = false)
     private String field;
 
     /**
      * 上下文类型
      */
-    @Column(length = 64,comment = "上下文类型 Integer String Date")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "上下文类型 Integer String Date" ,isNull = false)
     private String fieldType;
 
     /**

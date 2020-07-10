@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -33,9 +32,11 @@ import java.util.UUID;
  * @version :  com.qlj.flow.MybatisInterceptor.java,  v  0.1  2020/7/2  15:42  49796  Exp  $$
  */
 @Component
-@Intercepts({
-        @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class })
-})
+@Intercepts({@Signature(
+        type = Executor.class,
+        method = "update",
+        args = {MappedStatement.class, Object.class}
+)})
 public class MybatisInterceptor implements Interceptor {
 
     /**
@@ -52,7 +53,6 @@ public class MybatisInterceptor implements Interceptor {
      */
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         SqlCommandType sqlCommandType = mappedStatement.getSqlCommandType();
         Object parameter = invocation.getArgs()[1];
@@ -73,7 +73,7 @@ public class MybatisInterceptor implements Interceptor {
                 if(StringUtils.equalsIgnoreCase(field.getName(),"modifier")){
                     setFieldValue(field,parameter,ContextUtil.getCurrentUser());
                 }
-                if(SqlCommandType.UPDATE != sqlCommandType){
+                if(SqlCommandType.UPDATE == sqlCommandType){
                     return;
                 }
                 if(StringUtils.equalsIgnoreCase(field.getName(),"creator")){
@@ -82,9 +82,6 @@ public class MybatisInterceptor implements Interceptor {
                 if(StringUtils.equalsIgnoreCase(field.getName(),"createTime")){
                     setFieldValue(field,parameter,new Date());
                 }
-                if(StringUtils.equalsIgnoreCase(field.getName(),"id")){
-                    setFieldValue(field,parameter, UUID.randomUUID());
-                }
 
             }catch (Exception e){
                 logger.debug(String.format("mybatis拦截器设置值失败 %s",field.getName()),e);
@@ -92,31 +89,6 @@ public class MybatisInterceptor implements Interceptor {
         });
         return invocation.proceed();
     }
-
-    /**
-     *
-     * @param target
-     * @return
-     */
-    @Override
-    public Object plugin(Object target) {
-        if (target instanceof StatementHandler) {
-            return Plugin.wrap(target, this);
-        } else {
-            return target;
-        }
-    }
-
-    /**
-     *
-     * @param properties
-     */
-    @Override
-    public void setProperties(Properties properties) {
-
-    }
-
-
 
     /**
      * 设置值

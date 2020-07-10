@@ -6,6 +6,8 @@ package com.qlj.flow.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
 import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
  * 节点参数
@@ -13,56 +15,57 @@ import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
  * @version :  com.wj.updater.entity.ProcessParam.java,  v  0.1  2020/6/29  10:17  49796  Exp  $$
  */
 @TableName("process_param")
+@Table("process_param")
 public class ProcessParam extends BaseEntity{
 
     /**
      * id
      */
     @IsKey
-    @Column(length = 32,comment = "主键")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "主键")
     private String id;
 
     /**
      * 流程ID
      */
-    @Column(length = 32,comment = "流程ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "流程ID" ,isNull = false)
     private String processId;
 
 
     /**
      * 节点Id
      */
-    @Column(length = 32,comment = "节点Id")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "节点Id" ,isNull = false)
     private String nodeId;
 
     /**
      * 参数类型  node  process
      */
-    @Column(length = 16,comment = "参数类型")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 16,comment = "参数类型" ,isNull = false)
     private String type;
 
     /**
      * 参数名称
      */
-    @Column(length = 64,comment = "参数名称")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "参数名称" ,isNull = false)
     private String fieldName;
 
     /**
      * 参数类型  string  int  date
      */
-    @Column(length = 64,comment = "参数类型")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "参数类型 string  int  date" ,isNull = false)
     private String fieldType;
 
     /**
      * 是否必须
      */
-    @Column(comment ="是否必须")
+    @Column(comment ="是否必须",isNull = false)
     private Boolean required;
 
     /**
      * 参数默认值
      */
-    @Column(length = 64,comment = "参数默认值")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "参数默认值")
     private String value;
 
     /**

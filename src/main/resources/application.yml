@@ -1,0 +1,9 @@
+
+
+
+
+server:
+  port: 12800
+spring:
+  profiles:
+    active: dev

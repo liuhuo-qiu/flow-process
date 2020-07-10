@@ -4,6 +4,7 @@
 package com.qlj.flow.entity;
 
 import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
+import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 import java.util.Date;
 
@@ -23,7 +24,7 @@ public class BaseEntity {
     /**
      * 创建时间
      */
-    @Column(comment = "创建时间")
+    @Column(type= MySqlTypeConstant.DATETIME,comment = "创建时间")
     private Date createTime;
 
     /**
@@ -35,7 +36,7 @@ public class BaseEntity {
     /**
      * 最后更改时间
      */
-    @Column(comment = "最后更新时间")
+    @Column(type= MySqlTypeConstant.DATETIME,comment = "最后更新时间")
     private Date modifyTime;
 
     /**

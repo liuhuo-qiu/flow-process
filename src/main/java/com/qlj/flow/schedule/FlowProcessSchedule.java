@@ -5,23 +5,22 @@ package com.qlj.flow.schedule;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.qlj.flow.entity.ProcessContext;
+import com.qlj.flow.contact.ProcessStatusEnum;
+import com.qlj.flow.entity.ProcessNode;
 import com.qlj.flow.entity.ProcessNodeRecord;
 import com.qlj.flow.entity.ProcessRecord;
 import com.qlj.flow.mapper.ProcessContextMapper;
-import com.qlj.flow.mapper.ProcessNodeMapper;
 import com.qlj.flow.mapper.ProcessNodeRecordMapper;
-import com.qlj.flow.mapper.ProcessParamMapper;
 import com.qlj.flow.mapper.ProcessRecordMapper;
 import com.qlj.flow.service.FlowProcessService;
-import com.qlj.flow.contact.ProcessStatusEnum;
-import com.qlj.flow.entity.ProcessNode;
-import com.qlj.flow.entity.ProcessParam;
+import com.qlj.flow.service.ProcessNodeService;
+import com.qlj.flow.service.ProcessParamService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *  流程定时任务扫描
@@ -33,31 +32,37 @@ public class FlowProcessSchedule{
     /**
      * 流程实例mapper
      */
+    @Resource
     private ProcessRecordMapper processRecordMapper;
 
     /**
      * 节点实例mapper
      */
+    @Resource
     private ProcessNodeRecordMapper nodeRecordMapper;
 
     /**
      * 节点mapper
      */
-    private ProcessNodeMapper nodeMapper;
+    @Resource
+    private ProcessNodeService nodeService;
 
     /**
      * 节点参数mapper
      */
-    private ProcessParamMapper paramMapper;
+    @Resource
+    private ProcessParamService paramService;
 
     /**
      * 流程实例上下文
      */
+    @Resource
     private ProcessContextMapper contextMapper;
 
     /**
      * 流程服务类
      */
+    @Resource
     private FlowProcessService flowProcessService;
 
 
@@ -108,6 +113,12 @@ public class FlowProcessSchedule{
         nodeQuery.eq("process_record_id",process.getId());
         List<ProcessNodeRecord> processNodeRecords = nodeRecordMapper.selectList(nodeQuery);
         if(CollectionUtils.isEmpty(processNodeRecords)){
+            if(StringUtils.equalsIgnoreCase(process.getStatus(),ProcessStatusEnum.SUCCESS.getCode())||
+                    StringUtils.equalsIgnoreCase(process.getStatus(),ProcessStatusEnum.FAILED.getCode())){
+                return;
+            }
+            //没有执行中节点，并且流程实例不为成功和失败，则需要修正流程实例状态为执行完成
+            flowProcessService.updateProcessRecordStatus(process.getId(),ProcessStatusEnum.SUCCESS);
             return;
         }
         processNodeRecords.forEach(this::runChildNode);
@@ -118,83 +129,18 @@ public class FlowProcessSchedule{
      * @param nodeRecord
      */
     public void runChildNode(ProcessNodeRecord nodeRecord){
+        //更新当前节点状态为成功
+        nodeRecord.setStatus(ProcessStatusEnum.SUCCESS.getCode());
+        nodeRecordMapper.updateById(nodeRecord);
+
         QueryWrapper<ProcessNode> nodeQuery=new QueryWrapper<>();
         nodeQuery.eq("last_node",nodeRecord.getNodeId());
-        List<ProcessNode> processNodes = nodeMapper.selectList(nodeQuery);
-
-        processNodes.forEach(node->{
-            //查询出节点参数配置
-            List<ProcessParam> nodeParams = paramMapper.queryProcessNodeParamList(node.getProcessId(), node.getId());
-
-            //查询出上下文中对应的节点参数值
-            QueryWrapper<ProcessContext> contextQuery=new QueryWrapper<>();
-            contextQuery.eq("process_record_id",nodeRecord.getProcessRecordId());
-            contextQuery.in("field",nodeParams.stream().map(ProcessParam::getFieldName).collect(Collectors.toList()));
-            List<ProcessContext> processContexts = contextMapper.selectList(contextQuery);
-            JSONObject nodeParam=new JSONObject();
-
-            //构造节点参数
-            nodeParams.forEach(np->nodeParam.put(np.getFieldName(),np.getValue()));
-            processContexts.forEach(ctx->nodeParam.put(ctx.getField(),ctx.getValue()));
-
-            //执行节点
-            flowProcessService.executeNodeRecord(node,nodeParam);
-        });
-
-    }
-
-
-    /**
-     * Setter method for property   processRecordMapper .
-     *
-     * @param processRecordMapper value to be assigned to property processRecordMapper
-     */
-    public void setProcessRecordMapper(ProcessRecordMapper processRecordMapper) {
-        this.processRecordMapper = processRecordMapper;
-    }
-
-    /**
-     * Setter method for property   nodeRecordMapper .
-     *
-     * @param nodeRecordMapper value to be assigned to property nodeRecordMapper
-     */
-    public void setNodeRecordMapper(ProcessNodeRecordMapper nodeRecordMapper) {
-        this.nodeRecordMapper = nodeRecordMapper;
-    }
-
-    /**
-     * Setter method for property   nodeMapper .
-     *
-     * @param nodeMapper value to be assigned to property nodeMapper
-     */
-    public void setNodeMapper(ProcessNodeMapper nodeMapper) {
-        this.nodeMapper = nodeMapper;
-    }
-
-    /**
-     * Setter method for property   paramMapper .
-     *
-     * @param paramMapper value to be assigned to property paramMapper
-     */
-    public void setParamMapper(ProcessParamMapper paramMapper) {
-        this.paramMapper = paramMapper;
-    }
-
-    /**
-     * Setter method for property   contextMapper .
-     *
-     * @param contextMapper value to be assigned to property contextMapper
-     */
-    public void setContextMapper(ProcessContextMapper contextMapper) {
-        this.contextMapper = contextMapper;
-    }
-
-    /**
-     * Setter method for property   flowProcessService .
-     *
-     * @param flowProcessService value to be assigned to property flowProcessService
-     */
-    public void setFlowProcessService(FlowProcessService flowProcessService) {
-        this.flowProcessService = flowProcessService;
+        List<ProcessNode> processNodes = nodeService.list(nodeQuery);
+        if(!CollectionUtils.isEmpty(processNodes)){
+            processNodes.forEach(node->{
+                //执行节点
+                flowProcessService.executeNode(nodeRecord.getProcessRecordId(),node.getId());
+            });
+        }
     }
 }

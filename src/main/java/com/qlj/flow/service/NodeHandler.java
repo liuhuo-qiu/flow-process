@@ -5,6 +5,7 @@ package com.qlj.flow.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qlj.flow.entity.ProcessNode;
+import com.qlj.flow.entity.ProcessNodeRecord;
 import com.qlj.flow.entity.ProcessParam;
 
 import java.util.List;
@@ -26,18 +27,19 @@ public interface NodeHandler {
     /**
      * 节点操作
      *      所有异常情况统一抛出ServiceException，外层会捕获异常记录到节点执行记录中
-     * @param config 节点配置
-     * @param params  节点入参
+     * @param nodeRecord 节点实例
+     * @return object  节点实例的执行结果
+     *          如果为异步节点则此处为发起异步处理，返回null
+     *          异步处理发起失败直接抛出ServiceException
      */
-    public void doHandler(JSONObject config, List<ProcessParam> params);
+    public Object doHandler(ProcessNodeRecord nodeRecord);
 
     /**
-     * 检查节点是否执行完毕
+     * 检查节点是否执行完毕(仅有异步操作才有此草错)
      *      所有异常情况统一抛出ServiceException，外层会捕获异常记录到节点执行记录中
-     *      非异步操作直接返回true即可（非异步操作正常情况下不会check节点状态）
-     *    执行完毕（无论成功或失败 都返回true， 仅有未执行完毕或者异常时才返回false）
-     * @param node
-     * @return
+     *    执行完毕（未执行完毕返回null，执行失败返回抛出异常，执行成功返回节点的result）
+     * @param nodeRecord
+     * @return  节点实例的执行结果
      */
-    public boolean checkStatus(ProcessNode node);
+    public Object checkStatus(ProcessNodeRecord nodeRecord);
 }

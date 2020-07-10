@@ -3,7 +3,6 @@
  */
 package com.qlj.flow.service.node;
 
-import com.alibaba.fastjson.JSONObject;
 import com.qlj.flow.contact.NodeType;
 import com.qlj.flow.entity.ProcessNode;
 import com.qlj.flow.entity.ProcessNodeRecord;
@@ -14,35 +13,33 @@ import org.springframework.stereotype.Service;
 /**
  *
  * @author 49796
- * @version :  com.wj.updater.service.node.ApiNodeHandler.java,  v  0.1  2020/6/29  10:56  49796  Exp  $$
+ * @version :  com.qlj.flow.service.node.StartNodeHandler.java,  v  0.1  2020/7/10  16:47  49796  Exp  $$
  */
 @Service
-public class ApiNodeHandler implements NodeHandler {
-
+public class StartNodeHandler implements NodeHandler {
 
     /**
-     * 判断node是否满足apiNodeHandler执行条件
+     *
      * @param node
      * @return
      */
     @Override
     public boolean support(ProcessNode node) {
-        return StringUtils.equalsIgnoreCase(node.getType(), NodeType.HTTP_API.getCode());
+        return StringUtils.equalsIgnoreCase(node.getType(), NodeType.START.getCode());
     }
 
     /**
      *
      * @param nodeRecord 节点实例
+     * @return
      */
     @Override
     public Object doHandler(ProcessNodeRecord nodeRecord) {
-        JSONObject result=new JSONObject();
-
-        return result;
+        return null;
     }
 
     /**
-     * 状态检查
+     *
      * @param nodeRecord
      * @return
      */

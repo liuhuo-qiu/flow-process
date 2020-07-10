@@ -6,6 +6,7 @@ package com.qlj.flow.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
 import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
 import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
@@ -14,32 +15,33 @@ import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
  * @version :  com.wj.updater.entity.ProcessNodeRecord.java,  v  0.1  2020/6/29  11:12  49796  Exp  $$
  */
 @TableName("process_node_record")
+@Table("process_node_record")
 public class ProcessNodeRecord extends BaseEntity{
 
     /**
      * 流程实例ID
      */
     @IsKey
-    @Column(length = 32,comment = "主键")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "主键")
     private String id;
 
 
     /**
      * 流程实例ID
      */
-    @Column(length = 32,comment = "流程实例ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "流程实例ID" ,isNull = false)
     private String processRecordId;
 
     /**
      * 节点ID
      */
-    @Column(length = 32,comment = "节点ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "节点ID" ,isNull = false)
     private String nodeId;
 
     /**
      * 是否重试实例
      */
-    @Column(comment = "是否重试实例")
+    @Column(comment = "是否重试实例" ,isNull = false)
     private Boolean retry;
 
     /**
@@ -49,15 +51,15 @@ public class ProcessNodeRecord extends BaseEntity{
     private String params;
 
     /**
-     * 节点出参
+     * 节点执行结果
      */
-    @Column(type = MySqlTypeConstant.TEXT,comment = "节点出参")
+    @Column(type = MySqlTypeConstant.TEXT,comment = "节点执行结果")
     private String result;
 
     /**
      * 当前节点执行状态  running   success error  failed
      */
-    @Column(length = 16,comment = "状态")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 16,comment = "状态")
     private String status;
 
     /**

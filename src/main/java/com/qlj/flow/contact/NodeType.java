@@ -20,6 +20,11 @@ public enum NodeType {
     RULE("rule"),
 
     /**
+     * 表达式引擎节点
+     */
+    AVIATOR("aviator"),
+
+    /**
      * 开始节点
      */
     START("start"),

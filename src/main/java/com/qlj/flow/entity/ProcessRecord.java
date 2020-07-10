@@ -6,6 +6,7 @@ package com.qlj.flow.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.gitee.sunchenbin.mybatis.actable.annotation.Column;
 import com.gitee.sunchenbin.mybatis.actable.annotation.IsKey;
+import com.gitee.sunchenbin.mybatis.actable.annotation.Table;
 import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
 
 /**
@@ -14,18 +15,19 @@ import com.gitee.sunchenbin.mybatis.actable.constants.MySqlTypeConstant;
  * @version :  com.wj.updater.entity.ProcessRecord.java,  v  0.1  2020/6/29  11:10  49796  Exp  $$
  */
 @TableName("process_record")
+@Table("process_record")
 public class ProcessRecord extends BaseEntity{
 
     /**
      * 流程实例id
      */
     @IsKey
-    @Column(length = 32,comment = "主键")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "主键")
     private String id;
     /**
      * 流程ID
      */
-    @Column(length = 32,comment = "流程ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "流程ID",isNull = false)
     private String processId;
 
     /**
@@ -37,7 +39,7 @@ public class ProcessRecord extends BaseEntity{
     /**
      * 流程状态  ProcessStatusEnum
      */
-    @Column(length = 16,comment = "流程状态")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 16,comment = "流程状态",isNull = false)
     private String status;
 
 

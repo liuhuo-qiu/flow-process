@@ -22,25 +22,25 @@ public class ProcessNode extends BaseEntity{
      * 节点Id
      */
     @IsKey
-    @Column(length = 32,comment = "主键")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "主键")
     private String id;
 
     /**
      * 流程ID
      */
-    @Column(length = 32,comment = "流程ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "流程ID" ,isNull = false)
     private String processId;
 
     /**
      * 节点类型
      */
-    @Column(length = 16,comment = "节点类型")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 16,comment = "节点类型" ,isNull = false)
     private String type;
 
     /**
      * 节点名称
      */
-    @Column(length = 64,comment = "name")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "节点名称" ,isNull = false)
     private String name;
 
     /**
@@ -52,14 +52,14 @@ public class ProcessNode extends BaseEntity{
     /**
      * 上一个节点id
      */
-    @Column(length = 32,comment = "上一个节点id")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "上一个节点id")
     private String lastNode;
 
 
     /**
      * 下一个节点的ID
      */
-    @Column(length = 32,comment = "下一个节点的ID")
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "下一个节点的ID")
     private String nexNode;
 
     /**

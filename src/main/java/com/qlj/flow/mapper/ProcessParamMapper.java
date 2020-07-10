@@ -37,5 +37,11 @@ public interface ProcessParamMapper  extends BaseMapper<ProcessParam> {
     @Select("select "+COMMON_COLUMN+" from process_param where process_id=#{processId} and `type`='NODE' and node_id=#{nodeId}")
     List<ProcessParam> queryProcessNodeParamList(@Param("processId") String processId,@Param("nodeId") String nodeId);
 
-
+    /**
+     * 根据节点id查询节点参数
+     * @param nodeId
+     * @return
+     */
+    @Select("select "+COMMON_COLUMN+" from process_param where `type`='NODE' and node_id=#{nodeId}")
+    List<ProcessParam> queryProcessNodeParamListByNodeId(@Param("nodeId") String nodeId);
 }
