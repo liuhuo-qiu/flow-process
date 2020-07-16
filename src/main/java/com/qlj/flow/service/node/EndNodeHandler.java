@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  * @version :  com.qlj.flow.service.node.StartNodeHandler.java,  v  0.1  2020/7/10  16:47  49796  Exp  $$
  */
 @Service
-public class StartNodeHandler implements NodeHandler {
+public class EndNodeHandler implements NodeHandler {
 
     /**
      *
@@ -26,7 +26,7 @@ public class StartNodeHandler implements NodeHandler {
      */
     @Override
     public boolean support(ProcessNode node) {
-        return StringUtils.equalsIgnoreCase(node.getType(), NodeType.START.getCode());
+        return StringUtils.equalsIgnoreCase(node.getType(), NodeType.END.getCode());
     }
 
     /**
@@ -36,7 +36,7 @@ public class StartNodeHandler implements NodeHandler {
      */
     @Override
     public Object doHandler(ProcessNodeRecord nodeRecord) {
-        return new JSONObject();
+        return JSONObject.parseObject(nodeRecord.getParams());
     }
 
 }

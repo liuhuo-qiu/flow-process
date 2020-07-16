@@ -40,14 +40,4 @@ public class ApiNodeHandler implements NodeHandler {
 
         return result;
     }
-
-    /**
-     * 状态检查
-     * @param nodeRecord
-     * @return
-     */
-    @Override
-    public Object checkStatus(ProcessNodeRecord nodeRecord) {
-        return null;
-    }
 }

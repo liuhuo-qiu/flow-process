@@ -41,5 +41,5 @@ public interface NodeHandler {
      * @param nodeRecord
      * @return  节点实例的执行结果
      */
-    public Object checkStatus(ProcessNodeRecord nodeRecord);
+    default Object checkStatus(ProcessNodeRecord nodeRecord){return null;}
 }

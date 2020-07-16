@@ -4,9 +4,11 @@
 package com.qlj.flow.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.qlj.flow.contact.ProcessStatusEnum;
 import com.qlj.flow.entity.FlowProcess;
 import com.qlj.flow.entity.ProcessNode;
+import com.qlj.flow.entity.ProcessNodeRecord;
 import com.qlj.flow.entity.ProcessRecord;
 
 /**
@@ -14,7 +16,7 @@ import com.qlj.flow.entity.ProcessRecord;
  * @author 49796
  * @version :  com.wj.updater.service.FlowProcessService.java,  v  0.1  2020/6/29  11:01  49796  Exp  $$
  */
-public interface FlowProcessService {
+public interface FlowProcessService extends IService<FlowProcess> {
 
 
     /**
@@ -31,6 +33,14 @@ public interface FlowProcessService {
      * @return
      */
     public int createProcessNode(ProcessNode processNode);
+
+
+    /**
+     * 更改执行实例
+     * @param processRecord
+     * @return
+     */
+    public int updateProcessRecord(ProcessRecord processRecord);
 
     /**
      * 更改执行实例的状态
@@ -108,4 +118,12 @@ public interface FlowProcessService {
      * @param params 节点参数
      */
     public void retryErrorNode(String processRecordId,String errorNodeRecordId,String nodeId,JSONObject params);
+
+    /**
+     * 获取流程实例的最终返回值
+     * @param processId
+     * @param processRecordId
+     * @return
+     */
+    public JSONObject getProcessResult(String processId,String processRecordId);
 }

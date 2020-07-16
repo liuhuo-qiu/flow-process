@@ -35,12 +35,6 @@ public class ProcessContext extends BaseEntity{
     private String field;
 
     /**
-     * 上下文类型
-     */
-    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "上下文类型 Integer String Date" ,isNull = false)
-    private String fieldType;
-
-    /**
      * 值
      */
     @Column(type = MySqlTypeConstant.TEXT,comment = "值")
@@ -100,23 +94,6 @@ public class ProcessContext extends BaseEntity{
         this.field = field;
     }
 
-    /**
-     * Getter  method  for  property      fieldType.
-     *
-     * @return property  value  of  fieldType
-     */
-    public String getFieldType() {
-        return fieldType;
-    }
-
-    /**
-     * Setter method for property   fieldType .
-     *
-     * @param fieldType value to be assigned to property fieldType
-     */
-    public void setFieldType(String fieldType) {
-        this.fieldType = fieldType;
-    }
 
     /**
      * Getter  method  for  property      value.

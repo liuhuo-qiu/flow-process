@@ -51,12 +51,6 @@ public class ProcessParam extends BaseEntity{
     private String fieldName;
 
     /**
-     * 参数类型  string  int  date
-     */
-    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "参数类型 string  int  date" ,isNull = false)
-    private String fieldType;
-
-    /**
      * 是否必须
      */
     @Column(comment ="是否必须",isNull = false)
@@ -156,24 +150,6 @@ public class ProcessParam extends BaseEntity{
      */
     public void setFieldName(String fieldName) {
         this.fieldName = fieldName;
-    }
-
-    /**
-     * Getter  method  for  property      fieldType.
-     *
-     * @return property  value  of  fieldType
-     */
-    public String getFieldType() {
-        return fieldType;
-    }
-
-    /**
-     * Setter method for property   fieldType .
-     *
-     * @param fieldType value to be assigned to property fieldType
-     */
-    public void setFieldType(String fieldType) {
-        this.fieldType = fieldType;
     }
 
     /**

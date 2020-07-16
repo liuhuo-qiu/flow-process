@@ -5,6 +5,7 @@ package com.qlj.flow.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qlj.flow.contact.NodeType;
 import com.qlj.flow.contact.ProcessStatusEnum;
 import com.qlj.flow.entity.FlowProcess;
@@ -18,14 +19,12 @@ import com.qlj.flow.mapper.FlowProcessMapper;
 import com.qlj.flow.mapper.ProcessContextMapper;
 import com.qlj.flow.mapper.ProcessNodeMapper;
 import com.qlj.flow.mapper.ProcessNodeRecordMapper;
-import com.qlj.flow.mapper.ProcessParamMapper;
 import com.qlj.flow.mapper.ProcessRecordMapper;
 import com.qlj.flow.schedule.NodeSchedule;
 import com.qlj.flow.service.FlowProcessService;
 import com.qlj.flow.service.ProcessNodeService;
 import com.qlj.flow.service.ProcessParamService;
 import com.qlj.flow.util.ProcessUtil;
-import com.qlj.flow.util.UUIDUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ import java.util.stream.Collectors;
  * @version :  com.wj.updater.service.impl.FlowProcessServiceImpl.java,  v  0.1  2020/6/29  14:29  49796  Exp  $$
  */
 @Service
-public class FlowProcessServiceImpl implements FlowProcessService {
+public class FlowProcessServiceImpl extends ServiceImpl<FlowProcessMapper,FlowProcess> implements FlowProcessService {
     /**
      * 日志对象
      */
@@ -133,6 +132,20 @@ public class FlowProcessServiceImpl implements FlowProcessService {
     }
 
     /**
+     * 更新执行实例
+     * @param processRecord
+     * @return
+     */
+    @Override
+    public int updateProcessRecord(ProcessRecord processRecord) {
+        int i = processRecordMapper.updateById(processRecord);
+        if(i<0){
+            throw new ServiceException("更新流程实例失败");
+        }
+        return i;
+    }
+
+    /**
      * 更改执行实例的状态
      * @param processRecordId
      * @param status
@@ -143,7 +156,7 @@ public class FlowProcessServiceImpl implements FlowProcessService {
         ProcessRecord update=new ProcessRecord();
         update.setId(processRecordId);
         update.setStatus(status.getCode());
-        return processRecordMapper.updateById(update);
+        return updateProcessRecord(update);
     }
 
     /**
@@ -200,6 +213,19 @@ public class FlowProcessServiceImpl implements FlowProcessService {
         }
         if(null!=count&&count>retryTime){
             logger.warn(String.format("流程实例 %s 节点 %s 已经执行 %s次，超出节点最大执行次数限制%s！",processRecordId,nodeId,count,retryTime));
+            //如果没有子节点，查询当前实例下是否还有执行中节点
+            int runningNodeCount= queryStartedProcessByRecordId(processRecordId);
+            if(runningNodeCount>1){
+                return;
+            }
+            ProcessRecord processRecord = new ProcessRecord();
+            processRecord.setId(processRecordId);
+            processRecord.setStatus(ProcessStatusEnum.SUCCESS.getCode());
+            //获取流程实例的最终result
+            JSONObject processResult = getProcessResult(node.getProcessId(),processRecordId);
+            processRecord.setResult(processResult.toJSONString());
+            //更新流程最终状态为执行成功
+            updateProcessRecord(processRecord);
             return;
         }
 
@@ -239,7 +265,6 @@ public class FlowProcessServiceImpl implements FlowProcessService {
         ProcessRecord processRecord=new ProcessRecord();
         processRecord.setProcessId(processId);
         processRecord.setParam(params.toJSONString());
-        processRecord.setId(UUIDUtil.randomUuid());
         //流程执行中
         processRecord.setStatus(ProcessStatusEnum.RUNNING.getCode());
         processRecordMapper.insert(processRecord);
@@ -251,9 +276,18 @@ public class FlowProcessServiceImpl implements FlowProcessService {
             List<ProcessParam> processParams = paramService.queryProcessParamList(processId);
             //流程执行参数检查
             ProcessUtil.checkParam(processParams,params);
+            //将参数加入流程实例上下文
+            processParams.forEach(param->{
+                ProcessContext processContext = new ProcessContext();
+                processContext.setProcessRecordId(processRecord.getId());
+                processContext.setField(param.getFieldName());
+                processContext.setValue(param.getValue());
+                contextMapper.insert(processContext);
+            });
 
             //查询流程开始节点
             ProcessNode processNode = processNodeMapper.queryStartNode(processId);
+
             executeNodeRecord(processRecord.getId(),processNode,params);
         }catch (Exception e){
             logger.warn("流程实例创建异常",e);
@@ -339,7 +373,6 @@ public class FlowProcessServiceImpl implements FlowProcessService {
     @Override
     public void executeNodeRecord(String processRecordId,ProcessNode node, JSONObject params,Boolean isRetry) {
         ProcessNodeRecord nodeRecord=new ProcessNodeRecord();
-        nodeRecord.setId(UUIDUtil.randomUuid());
         nodeRecord.setRetry(isRetry);
         nodeRecord.setNodeId(node.getId());
         nodeRecord.setParams(params.toJSONString());
@@ -350,5 +383,41 @@ public class FlowProcessServiceImpl implements FlowProcessService {
         nodeRecordMapper.insert(nodeRecord);
         //加入待执行队列
         nodeSchedule.addData(nodeRecord);
+    }
+
+
+    /**
+     * 获取流程实例的最终返回值
+     * @param processId
+     * @param processRecordId
+     * @return
+     */
+    @Override
+    public JSONObject getProcessResult(String processId,String processRecordId) {
+        //提取所有type为end的节点中的result合并为整个流程实例的result
+        JSONObject processResult=new JSONObject();
+        QueryWrapper<ProcessNode> nodeQuery=new QueryWrapper<>();
+        nodeQuery.eq("process_id",processId);
+        nodeQuery.eq("type", NodeType.END.getCode());
+        List<ProcessNode> endNodeList = nodeService.list(nodeQuery);
+
+        QueryWrapper<ProcessNodeRecord> nodeRecordQuery=new QueryWrapper<>();
+        nodeRecordQuery.eq("process_record_id",processRecordId);
+        List<String> endNodeIdList = endNodeList.stream().map(item -> item.getId()).collect(Collectors.toList());
+        nodeRecordQuery.in("node_id",endNodeIdList);
+        List<ProcessNodeRecord> list = nodeRecordMapper.selectList(nodeRecordQuery);
+        list.forEach(item -> {
+            String result = item.getResult();
+            if(StringUtils.isBlank(result)){
+                return;
+            }
+            try{
+                JSONObject resultO = JSONObject.parseObject(result);
+                processResult.putAll(resultO);
+            }catch (Exception e){
+                logger.warn(String.format("节点%s 实例%s 结果转换为json异常：%s",item.getNodeId(),item.getId(),e.getMessage()));
+            }
+        });
+        return processResult;
     }
 }

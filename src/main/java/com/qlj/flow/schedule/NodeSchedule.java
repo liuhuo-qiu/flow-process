@@ -4,10 +4,13 @@
 package com.qlj.flow.schedule;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.qlj.flow.contact.NodeType;
 import com.qlj.flow.contact.ProcessStatusEnum;
 import com.qlj.flow.entity.ProcessNode;
 import com.qlj.flow.entity.ProcessNodeRecord;
 import com.qlj.flow.entity.ProcessParam;
+import com.qlj.flow.entity.ProcessRecord;
 import com.qlj.flow.exception.ServiceException;
 import com.qlj.flow.service.FlowProcessService;
 import com.qlj.flow.service.NodeHandler;
@@ -15,14 +18,17 @@ import com.qlj.flow.service.ProcessNodeRecordService;
 import com.qlj.flow.service.ProcessNodeService;
 import com.qlj.flow.service.ProcessParamService;
 import com.qlj.flow.util.ProcessUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.NumberUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 节点定时任务,从节点队列取出一个待执行节点执行
@@ -104,19 +110,19 @@ public class NodeSchedule extends AbstractSchedule<ProcessNodeRecord> {
             //执行节点
             handlerClass=handler.getClass().getSimpleName();
             Object result= handler.doHandler(nodeRecord);
-            if(result==null){
+            if(result!=null){
                 nodeRecord.setStatus(ProcessStatusEnum.COMPLETE.getCode());
-                //返回null表示未执行完成，等待节点处理中
-                nodeRecordService.updateById(nodeRecord);
-            }else{
                 nodeRecord.setResult(result.toString());
-                recordExecuteFinish(nodeRecord);
+                recordExecuteFinish(nodeRecord,node);
             }
         }catch (Exception e){
             logger.warn(String.format("节点 %s 执行异常 %s",handlerClass,JSONObject.toJSONString(nodeRecord)),e);
             //异常时候收集异常信息
             nodeRecord.setErrorMessage(e.getMessage());
-            nodeRecord.setStatus(ProcessStatusEnum.ERROR.getCode());
+            //已经执行完毕的时候出现的异常，节点状态不更改为异常
+            if(!StringUtils.equalsIgnoreCase(ProcessStatusEnum.COMPLETE.getCode(),nodeRecord.getStatus())){
+                nodeRecord.setStatus(ProcessStatusEnum.ERROR.getCode());
+            }
             nodeRecordService.updateById(nodeRecord);
         }
     }
@@ -128,29 +134,33 @@ public class NodeSchedule extends AbstractSchedule<ProcessNodeRecord> {
      * 节点执行完毕之后的操作
      * @param nodeRecord
      */
-    private void recordExecuteFinish(ProcessNodeRecord nodeRecord){
+    private void recordExecuteFinish(ProcessNodeRecord nodeRecord,ProcessNode node){
         //如果节点执行完毕，则查询子节点加入执行队列
-        nodeRecord.setStatus(ProcessStatusEnum.SUCCESS.getCode());
-        try{
-            //查询出当前节点的所有子节点，加入执行队列
-            List<ProcessNode> children = nodeService.getByLastNode(nodeRecord.getNodeId());
-            if(!CollectionUtils.isEmpty(children)){
-                children.forEach(child->{
-                    flowProcessService.executeNode(nodeRecord.getProcessRecordId(),child.getId());
-                });
-            }else{
-                //如果没有子节点，查询当前实例下是否还有执行中节点
-                int count= flowProcessService.queryStartedProcessByRecordId(nodeRecord.getProcessRecordId());
-                if(count>1){
-                    return;
-                }
-                flowProcessService.updateProcessRecordStatus(nodeRecord.getProcessRecordId(),ProcessStatusEnum.SUCCESS);
+
+        //查询出当前节点的所有子节点，加入执行队列
+        List<ProcessNode> children = nodeService.getByLastNode(nodeRecord.getNodeId());
+        if(!CollectionUtils.isEmpty(children)){
+            children.forEach(child->{
+                flowProcessService.executeNode(nodeRecord.getProcessRecordId(),child.getId());
+            });
+        }else{
+            //如果没有子节点，查询当前实例下是否还有执行中节点
+            int count= flowProcessService.queryStartedProcessByRecordId(nodeRecord.getProcessRecordId());
+            if(count>1){
+                return;
             }
-        }catch (Exception e){
-            logger.warn(String.format("节点实例Id %s 在查询子节点并添加到执行队列时异常",nodeRecord.getId()),e);
+            ProcessRecord processRecord = new ProcessRecord();
+            processRecord.setId(nodeRecord.getProcessRecordId());
+            processRecord.setStatus(ProcessStatusEnum.SUCCESS.getCode());
+            //获取流程实例的最终result
+            JSONObject processResult = flowProcessService.getProcessResult(node.getProcessId(),nodeRecord.getProcessRecordId());
+            processRecord.setResult(processResult.toJSONString());
+            flowProcessService.updateProcessRecord(processRecord);
         }
+        nodeRecord.setStatus(ProcessStatusEnum.SUCCESS.getCode());
         nodeRecordService.updateById(nodeRecord);
     }
+
 
     /**
      *  TODO
