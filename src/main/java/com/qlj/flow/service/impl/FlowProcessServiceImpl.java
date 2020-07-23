@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -58,6 +59,7 @@ public class FlowProcessServiceImpl extends ServiceImpl<FlowProcessMapper,FlowPr
     /**
      * 节点服务类
      */
+    @Resource
     private ProcessNodeService nodeService;
 
     /**
@@ -204,7 +206,8 @@ public class FlowProcessServiceImpl extends ServiceImpl<FlowProcessMapper,FlowPr
 
         ProcessNode node = nodeService.getById(nodeId);
         QueryWrapper<ProcessNodeRecord> nodeQuery=new QueryWrapper<>();
-
+        nodeQuery.eq("process_record_id",processRecordId);
+        nodeQuery.eq("node_id",nodeId);
         Integer count = nodeRecordMapper.selectCount(nodeQuery);
         Integer retryTime = node.getRetryTime();
         if(null==retryTime){
@@ -237,7 +240,9 @@ public class FlowProcessServiceImpl extends ServiceImpl<FlowProcessMapper,FlowPr
         //查询出上下文中对应的节点参数值
         QueryWrapper<ProcessContext> contextQuery=new QueryWrapper<>();
         contextQuery.eq("process_record_id",processRecordId);
-        contextQuery.in("field",nodeParams.stream().map(ProcessParam::getFieldName).collect(Collectors.toList()));
+        if(!CollectionUtils.isEmpty(nodeParams)){
+            contextQuery.in("field",nodeParams.stream().map(ProcessParam::getFieldName).collect(Collectors.toList()));
+        }
         List<ProcessContext> processContexts = contextMapper.selectList(contextQuery);
         JSONObject nodeParam=new JSONObject();
 
@@ -403,9 +408,14 @@ public class FlowProcessServiceImpl extends ServiceImpl<FlowProcessMapper,FlowPr
 
         QueryWrapper<ProcessNodeRecord> nodeRecordQuery=new QueryWrapper<>();
         nodeRecordQuery.eq("process_record_id",processRecordId);
-        List<String> endNodeIdList = endNodeList.stream().map(item -> item.getId()).collect(Collectors.toList());
-        nodeRecordQuery.in("node_id",endNodeIdList);
+        if(!CollectionUtils.isEmpty(endNodeList)){
+            List<String> endNodeIdList = endNodeList.stream().map(item -> item.getId()).collect(Collectors.toList());
+            nodeRecordQuery.in("node_id",endNodeIdList);
+        }
         List<ProcessNodeRecord> list = nodeRecordMapper.selectList(nodeRecordQuery);
+        if(CollectionUtils.isEmpty(list)){
+            return processResult;
+        }
         list.forEach(item -> {
             String result = item.getResult();
             if(StringUtils.isBlank(result)){

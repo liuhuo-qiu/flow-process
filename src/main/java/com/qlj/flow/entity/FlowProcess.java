@@ -40,6 +40,12 @@ public class FlowProcess extends BaseEntity{
     private String name;
 
     /**
+     * 流程code
+     */
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "流程名称" ,isNull = false)
+    private String code;
+
+    /**
      * 流程状态  1启用 2禁用
      */
     @Column(type = MySqlTypeConstant.VARCHAR,length = 4,comment = "流程状态  1启用 2禁用" ,isNull = false)
@@ -98,5 +104,23 @@ public class FlowProcess extends BaseEntity{
      */
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    /**
+     * Getter  method  for  property      code.
+     *
+     * @return property  value  of  code
+     */
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * Setter method for property   code .
+     *
+     * @param code value to be assigned to property code
+     */
+    public void setCode(String code) {
+        this.code = code;
     }
 }

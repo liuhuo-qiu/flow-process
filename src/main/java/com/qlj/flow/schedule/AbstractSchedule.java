@@ -5,8 +5,10 @@ package com.qlj.flow.schedule;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -26,26 +28,29 @@ public abstract class AbstractSchedule<T> implements ISchedule<T> {
      */
     private final LinkedBlockingQueue<T> queue=new LinkedBlockingQueue<T>(1000);
 
-
+    /**
+     * 线程池
+     */
+    @Resource
+    protected ThreadPoolTaskExecutor taskExecutor;
 
     /**
      * 初始化方法
      */
     @PostConstruct
-    public void init(){
+    public void initThread(){
         logger.warn("-----队列初始化开始------------------");
-        new Thread(()->{
+        taskExecutor.execute(()->{
             while (true){
                 try {
                     T poll = queue.take();
-                    if(null!=poll){
-                        execute(poll);
-                    }
+                    execute(poll);
                 }catch (Exception e){
                     logger.error("队列执行失败:"+e.getMessage(),e);
                 }
             }
-        }).start();
+        });
+        init();
     }
 
     /**
@@ -68,4 +73,9 @@ public abstract class AbstractSchedule<T> implements ISchedule<T> {
      */
     @Override
     public abstract void execute(T t);
+
+    /**
+     * 额外的初始化方法
+     */
+    protected void init() {}
 }

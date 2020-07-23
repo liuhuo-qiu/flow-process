@@ -17,7 +17,8 @@ import org.springframework.stereotype.Service;
  * @version :  com.qlj.flow.service.node.StartNodeHandler.java,  v  0.1  2020/7/10  16:47  49796  Exp  $$
  */
 @Service
-public class StartNodeHandler extends NoneNodeHandler implements NodeHandler {
+public class NoneNodeHandler implements NodeHandler {
+
     /**
      *
      * @param node
@@ -25,7 +26,17 @@ public class StartNodeHandler extends NoneNodeHandler implements NodeHandler {
      */
     @Override
     public boolean support(ProcessNode node) {
-        return StringUtils.equalsIgnoreCase(node.getType(), NodeType.START.getCode());
+        return StringUtils.equalsIgnoreCase(node.getType(), NodeType.NONE.getCode());
+    }
+
+    /**
+     *
+     * @param nodeRecord 节点实例
+     * @return
+     */
+    @Override
+    public Object doHandler(ProcessNodeRecord nodeRecord) {
+        return new JSONObject();
     }
 
 }

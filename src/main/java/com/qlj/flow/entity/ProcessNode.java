@@ -43,6 +43,13 @@ public class ProcessNode extends BaseEntity{
     @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "节点名称" ,isNull = false)
     private String name;
 
+
+    /**
+     * 节点名称
+     */
+    @Column(type = MySqlTypeConstant.VARCHAR,length = 64,comment = "节点code标记")
+    private String code;
+
     /**
      * 节点配置,一个JSON
      */
@@ -61,6 +68,12 @@ public class ProcessNode extends BaseEntity{
      */
     @Column(type = MySqlTypeConstant.VARCHAR,length = 32,comment = "下一个节点的ID")
     private String nexNode;
+
+    /**
+     * 前置节点,需要所有前置节点都执行完毕之后再执行此节点
+     */
+    @Column(type = MySqlTypeConstant.TEXT,comment = "前置节点")
+    private String preNode;
 
     /**
      * 错误重试次数上限
@@ -210,5 +223,41 @@ public class ProcessNode extends BaseEntity{
      */
     public void setNexNode(String nexNode) {
         this.nexNode = nexNode;
+    }
+
+    /**
+     * Getter  method  for  property      code.
+     *
+     * @return property  value  of  code
+     */
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * Setter method for property   code .
+     *
+     * @param code value to be assigned to property code
+     */
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    /**
+     * Getter  method  for  property      preNode.
+     *
+     * @return property  value  of  preNode
+     */
+    public String getPreNode() {
+        return preNode;
+    }
+
+    /**
+     * Setter method for property   preNode .
+     *
+     * @param preNode value to be assigned to property preNode
+     */
+    public void setPreNode(String preNode) {
+        this.preNode = preNode;
     }
 }

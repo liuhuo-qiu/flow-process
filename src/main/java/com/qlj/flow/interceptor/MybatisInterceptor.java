@@ -6,6 +6,7 @@ package com.qlj.flow.interceptor;
 import com.qlj.flow.util.ClassUtil;
 import com.qlj.flow.util.ContextUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -55,17 +56,31 @@ public class MybatisInterceptor implements Interceptor {
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         SqlCommandType sqlCommandType = mappedStatement.getSqlCommandType();
-        Object parameter = invocation.getArgs()[1];
-        if (parameter == null) {
-            return invocation.proceed();
-        }
         if (SqlCommandType.INSERT != sqlCommandType &&SqlCommandType.UPDATE != sqlCommandType  ) {
             return invocation.proceed();
         }
+
+        Object parameter = invocation.getArgs()[1];
         //如果insert 和 update时 遇到BaseEntity 则注入创建人、创建时间、修改人、修改时间、id
         List<Field> fieldList = ClassUtil.getFieldList(parameter);
+        if (parameter == null) {
+            return invocation.proceed();
+        }
+        if(SqlCommandType.UPDATE == sqlCommandType&&parameter instanceof MapperMethod.ParamMap){
+            MapperMethod.ParamMap<?> p = (MapperMethod.ParamMap<?>) parameter;
+            if (p.containsKey("et")) {
+                parameter = p.get("et");
+            } else {
+                parameter = p.get("param1");
+            }
+            if (parameter == null) {
+                return invocation.proceed();
+            }
+            fieldList = ClassUtil.getFieldList(parameter);
+        }
 
-        fieldList.forEach(field->{
+
+        for(Field field:fieldList){
             try{
                 if(StringUtils.equalsIgnoreCase(field.getName(),"modifyTime")){
                     setFieldValue(field,parameter,new Date());
@@ -74,7 +89,7 @@ public class MybatisInterceptor implements Interceptor {
                     setFieldValue(field,parameter,ContextUtil.getCurrentUser());
                 }
                 if(SqlCommandType.UPDATE == sqlCommandType){
-                    return;
+                    continue;
                 }
                 if(StringUtils.equalsIgnoreCase(field.getName(),"creator")){
                     setFieldValue(field,parameter,ContextUtil.getCurrentUser());
@@ -86,7 +101,7 @@ public class MybatisInterceptor implements Interceptor {
             }catch (Exception e){
                 logger.debug(String.format("mybatis拦截器设置值失败 %s",field.getName()),e);
             }
-        });
+        }
         return invocation.proceed();
     }
 
@@ -99,12 +114,7 @@ public class MybatisInterceptor implements Interceptor {
      */
     private void setFieldValue(Field field, Object parameter,Object value) throws IllegalAccessException {
         field.setAccessible(true);
-        Object local_createBy = field.get(parameter);
+        field.set(parameter, value);
         field.setAccessible(false);
-        if (local_createBy == null || local_createBy.equals("")) {
-            field.setAccessible(true);
-            field.set(parameter, value);
-            field.setAccessible(false);
-        }
     }
 }

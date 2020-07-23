@@ -10,39 +10,49 @@ package com.qlj.flow.contact;
  */
 public enum NodeType {
     /**
+     * 空节点
+     */
+    NONE("NONE"),
+    /**
      * 远程http请求数据节点
      */
-    HTTP_API("http_api"),
+    HTTP_API("HTTP_API"),
 
     /**
      * 规则节点
      */
-    RULE("rule"),
+    RULE("RULE"),
 
     /**
      * 表达式引擎节点
      */
-    AVIATOR("aviator"),
+    AVIATOR("AVIATOR"),
 
     /**
      * 开始节点
      */
-    START("start"),
+    START("START"),
 
     /**
      * 结束节点
      */
-    END("end"),
+    END("END"),
 
     /**
      * 条件判断节点
      */
-    CONDITION("condition"),
+    CONDITION("CONDITION"),
 
     /**
      * 审批节点
      */
-    APPROVE("approve"),
+    APPROVE("APPROVE"),
+
+
+    /**
+     * 流程节点
+     */
+    PROCESS("PROCESS"),
 
     ;
 

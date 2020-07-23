@@ -3,8 +3,11 @@
  */
 package com.qlj.flow.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qlj.flow.contact.NodeType;
 import com.qlj.flow.entity.FlowProcess;
 import com.qlj.flow.entity.ProcessNode;
 import com.qlj.flow.entity.ProcessNodeRecord;
@@ -13,9 +16,13 @@ import com.qlj.flow.service.FlowProcessService;
 import com.qlj.flow.service.ProcessNodeRecordService;
 import com.qlj.flow.service.ProcessNodeService;
 import com.qlj.flow.service.ProcessRecordService;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.qlj.flow.util.TextUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -30,6 +37,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/flowProcess")
 public class FlowProcessController {
+    /**
+     * 日志对象
+     */
+    private static final Logger logger = LoggerFactory.getLogger(FlowProcessController.class);
 
 
     /**
@@ -57,9 +68,29 @@ public class FlowProcessController {
     private ProcessNodeRecordService nodeRecordService;
 
 
-    @GetMapping("/test")
-    public String test(){
-        return "aaaa";
+    @PostMapping("/initNode")
+    public boolean initNode(String processId,String lastNodeId,String filePath){
+        try{
+            String read = TextUtil.read(filePath);
+            JSONArray array = JSONArray.parseArray(read);
+            String configTemplate="{\"express\":\"\\n\\nreturn {\\n\\t\\\"${field}\\\":\\\"\\\",\\n}\"}";
+            for(int i=0;i<array.size();i++){
+                JSONObject jsonObject = array.getJSONObject(i);
+                String name=jsonObject.getString("desc");
+                String field = jsonObject.getString("field");
+                ProcessNode node=new ProcessNode();
+                node.setType(NodeType.CONDITION.getCode());
+                node.setName(name);
+                node.setLastNode(lastNodeId);
+                node.setProcessId(processId);
+                node.setConfig(StringUtils.replace(configTemplate,"${field}",field));
+                processService.createProcessNode(node);
+            }
+            return true;
+        }catch (Exception e){
+            logger.error("初始化异常",e);
+            return false;
+        }
     }
 
     /**
@@ -67,10 +98,11 @@ public class FlowProcessController {
      * @return 创建的流程信息
      */
     @PostMapping("/createProcess")
-    public FlowProcess createProcess(String name){
+    public FlowProcess createProcess(String name,String code){
         FlowProcess flowProcess = new FlowProcess();
         flowProcess.setStatus(FlowProcess.STATUS_ENABLE);
         flowProcess.setName(name);
+        flowProcess.setCode(code);
         processService.createProcess(flowProcess);
         return flowProcess;
     }
@@ -84,7 +116,7 @@ public class FlowProcessController {
      * @return 创建的节点信息
      */
     @PostMapping("/createProcessNode")
-    public ProcessNode createProcessNode(String processId,String lastNode,String name,String config){
+    public ProcessNode createProcessNode(String processId,String lastNode,String name,String code,String config){
 
         //TODO 流程状态为发布中 禁止新增节点
         ProcessNode node=new ProcessNode();
@@ -92,6 +124,8 @@ public class FlowProcessController {
         node.setLastNode(lastNode);
         node.setName(name);
         node.setConfig(config);
+        node.setCode(code);
+        node.setType(NodeType.NONE.getCode());
         processService.createProcessNode(node);
         return node;
     }
@@ -181,5 +215,25 @@ public class FlowProcessController {
         QueryWrapper<ProcessNodeRecord> query=new QueryWrapper<>();
         query.eq("process_record_id",processRecordId);
         return nodeRecordService.list(query);
+    }
+
+    /**
+     *  查询流程列表
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @PostMapping("/page")
+    public Page<FlowProcess> queryNodeRecordByProcessRecordId(@RequestParam(defaultValue = "1") Integer pageNo,
+                                                              @RequestParam(defaultValue = "20") Integer pageSize,
+                                                              String status,
+                                                              String name){
+        QueryWrapper<FlowProcess> query= new QueryWrapper<>();
+        query.eq("status",status);
+        if(StringUtils.isNotBlank(name)){
+            query.like("name",name);
+        }
+        Page<FlowProcess> page = processService.page(new Page<>(pageNo,pageSize), query);
+        return page;
     }
 }
