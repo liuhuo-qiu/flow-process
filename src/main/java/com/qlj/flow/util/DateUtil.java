@@ -192,6 +192,15 @@ public class DateUtil {
         return c.getTime();
     }
 
+
+    /**
+     * 使用默认格式格式化当前时间
+     * @return
+     */
+    public static String format(){
+        return  format(new Date());
+    }
+
     /**
      * 使用默认格式格式化时间
      * @param date
